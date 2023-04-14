@@ -1,0 +1,101 @@
+<div class="container-fluid bg-black p-3 flex flex-row fixed-top h-">
+  <a href="/" class="text-center text-decoration-none text-yellow-200 fs-5 mx-3 fw-bolder">HOME</a>
+  <a href="/addCar" class="text-center text-decoration-none text-yellow-200 fs-5 mx-3 fw-bolder">ADD</a>
+  <a href="/carsList" class="text-center text-decoration-none text-yellow-200 fs-5 mx-3 fw-bolder">LIST</a>
+  <a href="carsEdit" class="text-center text-decoration-none text-yellow-300 fs-5 mx-3 fw-bolder">EDIT</a>
+</div>
+<div class="container-fluid bg-dark text-white d-flex flex-column align-items-flex-start justify-content-flex-start px-5" style="min-height: 100vh; padding-top: 80px;">
+    <h1 class="w-100 fw-normal text-white fs-3">CARS LIST</h1>
+    <table class="table text-white">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col" class="text-center">Insured</th>
+          <th scope="col" class="text-center">Petrol Car</th>
+          <th scope="col" class="text-center">Damaged</th>
+          <th scope="col" class="text-center">Four-by-four</th>
+          <th scope="col" class="text-center"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each carList}}
+        {{#if isEdited}}
+          <tr id="tr-{{@index}}">
+            <form>
+              <th scope="row">{{_id}}</th>
+              <td class="text-center">
+                <select name="isInsured" id="select-{{@index}}-isInsured" class="form-select">
+                  {{{ selectOptions isInsured }}}
+                </select>
+              </td>
+              <td class="text-center">
+                <select name="isPetrolCar" id="select-{{@index}}-isPetrolCar" class="form-select">
+                  {{{ selectOptions isPetrolCar }}}
+                </select>
+              </td>
+              <td class="text-center">
+                <select name="isDamaged" id="select-{{@index}}-isDamaged" class="form-select">
+                  {{{ selectOptions isDamaged }}}
+                </select>
+              </td>
+              <td class="text-center">
+                <select name="isFourByFour" id="select-{{@index}}-isFourByFour" class="form-select">
+                  {{{ selectOptions isFourByFour }}}
+                </select>
+              </td>
+              <td>
+                <button class="btn btn-warning text-dark fw-bold" type="button" onclick="updateCar({{@index}}, '{{_id}}')">UPDATE</button>
+                <a class="btn btn-warning text-dark fw-bold mx-2" href="/carsEdit">CANCEL</a>
+              </td>
+            </form>
+          </tr>
+        {{else}}
+          <tr id="tr-{{@index}}">
+            <th scope="row">{{_id}}</th>
+            <td class="text-center">{{{boolTranslate isInsured}}}</td>
+            <td class="text-center">{{{boolTranslate isPetrolCar}}}</td>
+            <td class="text-center">{{{boolTranslate isDamaged}}}</td>
+            <td class="text-center">{{{boolTranslate isFourByFour}}}</td>
+            <td class="text-center">
+              <form action="/carsEdit" style="width: fit-content; height: fit-content;" class="m-0 text-center">
+                <input type="hidden" name="editedCarID" value="{{_id}}">
+                <button class="btn btn-warning text-dark fw-bold" type="submit">EDIT</button>
+              </form>
+            </td>
+          </tr>
+        {{/if}}
+        {{/each}}
+      </tbody>
+      </table>
+</div>
+
+<script>
+  function updateCar(index, id){
+    if(confirm("Are you sure you want to update this car?")){
+      const data = JSON.stringify({
+        _id: id,
+        isInsured: document.getElementById(`select-${index}-isInsured`).value,
+        isPetrolCar: document.getElementById(`select-${index}-isPetrolCar`).value,
+        isDamaged: document.getElementById(`select-${index}-isDamaged`).value,
+        isFourByFour: document.getElementById(`select-${index}-isFourByFour`).value,
+        isEdited: false
+      });
+
+      const options = {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: data,
+      };
+
+      fetch("/handleUpdate", options)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.message);
+          window.location.href = "/carsEdit";
+        })
+        .catch((e) => console.log(e));
+    }
+  }
+</script>
